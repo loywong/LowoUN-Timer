@@ -1,7 +1,7 @@
 ﻿using LowoUN.Util;
 using UnityEngine;
 
-public class Sample_TimeWatcher : MonoBehaviour {
+public class Sample_V1 : MonoBehaviour {
 	[Header ("Test1_毫秒延迟_不循环")][SerializeField] private uint milliseconds_1 = 5000;
 	[Header ("Test2_毫秒延迟_循环")][SerializeField] private uint milliseconds_2 = 3000;
 	[Header ("Test3_毫秒延迟_循环")][SerializeField] private uint milliseconds_3 = 1000;
