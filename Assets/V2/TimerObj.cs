@@ -41,22 +41,25 @@ namespace LowoUN.Util {
 
         public void Start () {
             curTime = 0;
-            SetState (TimerObjState.Running);
+            SetState_NotStop (TimerObjState.Running);
         }
 
-        public void SetState_Stop () {
-            SetState (TimerObjState.Done);
+        public void SetState_Stop_Manual () {
+            this.curState = TimerObjState.Done;
+            this.done = null; // 手动停止的timer不再执行done action
+            SetStateDone ();
+        }
+        void SetState_Stop () {
+            this.curState = TimerObjState.Done;
+            SetStateDone ();
         }
 
-        void SetState (TimerObjState s) {
+        void SetState_NotStop (TimerObjState s) {
             this.curState = s;
-
-            if (s == TimerObjState.Done)
-                SetStateDone ();
         }
 
-        public void SetState_Pause () { SetState (TimerObjState.Pause); }
-        public void SetState_Resume () { SetState (TimerObjState.Running); }
+        public void SetState_Pause () { SetState_NotStop (TimerObjState.Pause); }
+        public void SetState_Resume () { SetState_NotStop (TimerObjState.Running); }
 
         void SetStateDone () {
             try {
@@ -65,8 +68,10 @@ namespace LowoUN.Util {
                     return;
                 }
 
-                if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
-                    done?.Invoke ();
+                if(done!=null) {
+                    if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
+                        done?.Invoke ();
+                    }
                 }
                 Reset ();
                 TimeMgr.Self.DoneToRecycle (this);
@@ -96,7 +101,7 @@ namespace LowoUN.Util {
             }
 
             if (curTime >= exeTime) {
-                SetStateDone ();
+                SetState_Stop();
             }
         }
     }

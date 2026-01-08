@@ -85,10 +85,22 @@ namespace LowoUN.Util {
         }
 
         private void UpdateTimers () {
+            // Debug.Log ($"timerMap.Remove stopList.Count:{stopList.Count}");
+
+            if (startList.Count > 0) {
+                foreach (var startData in startList) {
+                    Debug.Log ($"timerMap.Add Id:{startData.id}");
+                    timerMap.Add (startData.id, startData);
+                }
+                startList.Clear ();
+            }
+
             if (stopList.Count > 0) {
                 foreach (var stopId in stopList) {
+                    // Debug.Log ($"stopList stopId:{stopId}");
                     if (timerMap.ContainsKey (stopId)) {
                         pool.Push (timerMap[stopId]);
+                        Debug.Log ($"timerMap.Remove stopId:{stopId}, and return pool");
                         timerMap.Remove (stopId);
                     }
                 }
@@ -97,13 +109,6 @@ namespace LowoUN.Util {
 
             foreach (var item in timerMap) {
                 item.Value.SetUpdate ();
-            }
-
-            if (startList.Count > 0) {
-                foreach (var startData in startList) {
-                    timerMap.Add (startData.id, startData);
-                }
-                startList.Clear ();
             }
         }
 
@@ -164,11 +169,23 @@ namespace LowoUN.Util {
 #endif
                 return;
             }
-            if (timerMap.ContainsKey (id))
-                timerMap[id].SetState_Stop ();
+
+            bool isInStartList = false;
+            foreach (var item in startList) {
+                if (item.id == id) {
+                    item.SetState_Stop_Manual ();
+                    isInStartList = true;
+                    break;
+                }
+            }
+
+            if (!isInStartList) {
+                if (timerMap.ContainsKey (id))
+                    timerMap[id].SetState_Stop_Manual ();
 #if UNITY_EDITOR
-            else Debug.Log ($"[Editor临时] TimeMgr -- obj with id:{id} has been recycled or reused.");
+                else Debug.Log ($"[Editor临时] TimeMgr -- obj with id:{id} has been recycled or reused.");
 #endif
+            }
         }
 
         public void Pause () {
@@ -201,7 +218,7 @@ namespace LowoUN.Util {
         }
 
         public void DoneToRecycle (TimerObj tobj) {
-            // Debug.LogError ($"DoneToRecycle id:{tobj.id}");
+            Debug.Log ($"DoneToRecycle id:{tobj.id}");
             // timerMap.Remove (tobj.id);
             // pool.Push (tobj);
             stopList.Add (tobj.id);
