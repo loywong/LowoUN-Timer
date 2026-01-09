@@ -180,8 +180,10 @@ namespace LowoUN.Util {
             }
 
             if (!isInStartList) {
-                if (timerMap.ContainsKey (id))
+                if (timerMap.ContainsKey (id)) {
+                    // Debug.LogError ($"TimeMgr.Self.StopTimer() id:{id};");
                     timerMap[id].SetState_Stop_Manual ();
+                }
 #if UNITY_EDITOR
                 else Debug.Log ($"[Editor临时] TimeMgr -- obj with id:{id} has been recycled or reused.");
 #endif
