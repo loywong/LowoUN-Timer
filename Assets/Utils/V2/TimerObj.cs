@@ -63,12 +63,19 @@ namespace LowoUN.Util {
         public void SetState_Pause () { SetState_NotStop (TimerObjState.Pause); }
         public void SetState_Resume () { SetState_NotStop (TimerObjState.Running); }
 
-        void CallEvent() {
-            exeTime = 0;
-            if(done!=null) {
-                if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
-                    done?.Invoke ();
+        void CallLoopTypeEvent() {
+            try {
+                if (this == null) {
+                    Debug.LogError ("TimerObj is null");
+                    return;
                 }
+                if(done!=null) {
+                    if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
+                        done.Invoke ();
+                    }
+                }
+            } catch (System.Exception e) {
+                Debug.LogError ($"TimerObj -- CallLoopTypeEvent -- error, e:{e}");
             }
         }
 
@@ -81,13 +88,13 @@ namespace LowoUN.Util {
 
                 if(done!=null) {
                     if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
-                        done?.Invoke ();
+                        done.Invoke ();
                     }
                 }
                 Reset ();
                 TimeMgr.Self.DoneToRecycle (this);
             } catch (System.Exception e) {
-                Debug.LogError ($"TimerObj error, e:{e}");
+                Debug.LogError ($"TimerObj -- SetStateDone -- error, e:{e}");
             }
         }
 
@@ -112,8 +119,9 @@ namespace LowoUN.Util {
             }
 
             if (curTime >= exeTime) {
+                curTime = 0;
                 if(isLoop) 
-                    CallEvent();
+                    CallLoopTypeEvent();
                 else 
                     SetState_Stop();
             }

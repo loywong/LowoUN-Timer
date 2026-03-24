@@ -215,7 +215,7 @@ namespace LowoUN.Util {
         public void ResumeObj (long id) {
             if (timerMap.ContainsKey (id)) {
                 var obj = timerMap[id];
-                if (obj != null && obj.CurState == TimerObjState.Running)
+                if (obj != null && obj.CurState == TimerObjState.Pause)
                     obj.SetState_Resume ();
             }
             // else Debug.LogError ($"obj with id:{id} has been stopped");
