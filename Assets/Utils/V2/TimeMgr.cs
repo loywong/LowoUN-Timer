@@ -130,7 +130,11 @@ namespace LowoUN.Util {
         public long StartTimer_Loop (float time, Action perDone, Func<bool> bindCondition = null) {
             return StartTimer_Base (time, perDone, bindCondition,false,false,true);
         }
-        // 每经过x时间，执行一次，总共执行多次
+        public long StartTimer_Loop_IgnoreTimeScale (float time, Action perDone, Func<bool> bindCondition = null) {
+            return StartTimer_Base (time, perDone, bindCondition,false,true,true);
+        }
+        
+        // TODO 每经过x时间，执行一次，总共执行多次
         // public long StartTimer_Multi (float time, uint exeNums, Action done, Func<bool> bindCondition = null) {
         //     if(exeNums<=1) {
         //         Debug.LogError("exeNums should be bigger than 1");
@@ -138,6 +142,7 @@ namespace LowoUN.Util {
         //     }
         //     return StartTimer_Base (time, done, bindCondition, true);
         // }
+
         // 延迟x时间，执行一次
         public long StartTimer (float time, Action done, Func<bool> bindCondition = null) {
             return StartTimer_Base (time, done, bindCondition);
