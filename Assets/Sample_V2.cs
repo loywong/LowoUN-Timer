@@ -4,6 +4,7 @@ using UnityEngine;
 public class Sample_V2 : MonoBehaviour {
 
     long cachetimer1;
+    long looptimer1;
 
     void Start () {
         TimeMgr.Self.Awake ();
@@ -22,6 +23,9 @@ public class Sample_V2 : MonoBehaviour {
         );
 
         TimeMgr.Self.StartTimer (2f, () => { Debug.Log ("execute action - Sample_V2 case3"); }, () => { return true; });
+
+        looptimer1 = TimeMgr.Self.StartTimer_Loop (3f, () => { Debug.Log ("execute action - loop event"); });
+        // TimeMgr.Self.PauseObj(looptimer1);
     }
 
     void Update () {

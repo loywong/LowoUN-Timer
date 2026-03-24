@@ -16,27 +16,29 @@ namespace LowoUN.Util {
         // public bool isRealTimer;
         bool isFrameType;
         bool isIgnoreTimeScale;
+        bool isLoop;
 
         float curTime;
         TimerObjState curState;
         public TimerObjState CurState => curState;
 
         // public TimerObj (long id, float endTick, Action done, bool isRealTimer) {
-        public TimerObj (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale) {
+        public TimerObj (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, bool isLoop) {
             this.id = id;
-            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale);
+            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale,isLoop);
         }
-        public void ReInit (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale) {
+        public void ReInit (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, bool isLoop) {
             this.id = id;
-            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale);
+            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale,isLoop);
         }
-        void Init (float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale) {
+        void Init (float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, bool isLoop) {
             this.exeTime = exeTime;
             this.done = done;
             // this.isRealTimer = isRealTimer;
             this.bindCondition = bindCondition;
             this.isFrameType = isFrameType;
             this.isIgnoreTimeScale = isIgnoreTimeScale;
+            this.isLoop = isLoop;
         }
 
         public void Start () {
@@ -60,6 +62,15 @@ namespace LowoUN.Util {
 
         public void SetState_Pause () { SetState_NotStop (TimerObjState.Pause); }
         public void SetState_Resume () { SetState_NotStop (TimerObjState.Running); }
+
+        void CallEvent() {
+            exeTime = 0;
+            if(done!=null) {
+                if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
+                    done?.Invoke ();
+                }
+            }
+        }
 
         void SetStateDone () {
             try {
@@ -101,7 +112,10 @@ namespace LowoUN.Util {
             }
 
             if (curTime >= exeTime) {
-                SetState_Stop();
+                if(isLoop) 
+                    CallEvent();
+                else 
+                    SetState_Stop();
             }
         }
     }
