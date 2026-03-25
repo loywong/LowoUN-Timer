@@ -16,33 +16,36 @@ namespace LowoUN.Util {
         // public bool isRealTimer;
         bool isFrameType;
         bool isIgnoreTimeScale;
-        bool isLoop;
+        // bool isLoop => exeTimes==0;
+        uint exeTimes = 1;// 0表示不限次数 1 表示1次 n表示多次
+        uint curExeTimes;
 
         float curTime;
         TimerObjState curState;
         public TimerObjState CurState => curState;
 
         // public TimerObj (long id, float endTick, Action done, bool isRealTimer) {
-        public TimerObj (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, bool isLoop) {
+        public TimerObj (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes) {
             this.id = id;
-            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale,isLoop);
+            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale,exeTimes);
         }
-        public void ReInit (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, bool isLoop) {
+        public void ReInit (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes) {
             this.id = id;
-            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale,isLoop);
+            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale,exeTimes);
         }
-        void Init (float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, bool isLoop) {
+        void Init (float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes) {
             this.exeTime = exeTime;
             this.done = done;
             // this.isRealTimer = isRealTimer;
             this.bindCondition = bindCondition;
             this.isFrameType = isFrameType;
             this.isIgnoreTimeScale = isIgnoreTimeScale;
-            this.isLoop = isLoop;
+            this.exeTimes = exeTimes;
         }
 
         public void Start () {
             curTime = 0;
+            curExeTimes = 0;
             SetState_NotStop (TimerObjState.Running);
         }
 
@@ -63,7 +66,7 @@ namespace LowoUN.Util {
         public void SetState_Pause () { SetState_NotStop (TimerObjState.Pause); }
         public void SetState_Resume () { SetState_NotStop (TimerObjState.Running); }
 
-        void CallLoopTypeEvent() {
+        void CallEventOnce() {
             try {
                 if (this == null) {
                     Debug.LogError ("TimerObj is null");
@@ -100,6 +103,7 @@ namespace LowoUN.Util {
 
         void Reset () {
             exeTime = 0;
+            exeTimes = 1;
             done = null;
             curState = TimerObjState.Done;
         }
@@ -119,11 +123,20 @@ namespace LowoUN.Util {
             }
 
             if (curTime >= exeTime) {
+                curExeTimes += 1;
+                // SetStateDone ();
                 curTime = 0;
-                if(isLoop) 
-                    CallLoopTypeEvent();
-                else 
-                    SetState_Stop();
+                if(exeTimes==0) 
+                    CallEventOnce();
+                else {
+                    if(curExeTimes>= exeTimes){
+                        curExeTimes = 0;
+                        SetState_Stop();
+                    }
+                    else {
+                        CallEventOnce();
+                    }
+                }
             }
         }
     }

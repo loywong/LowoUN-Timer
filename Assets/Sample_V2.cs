@@ -12,20 +12,22 @@ public class Sample_V2 : MonoBehaviour {
         Time.timeScale = 1;
         TimeMgr.Self.SetWork ();
 
-        cachetimer1 = TimeMgr.Self.StartTimer (0.5f, () => { Debug.Log ("execute action - Sample_V2 case1"); });
+        TimeMgr.Self.StartTimer (2f, () => { Debug.Log ("execute action - Sample_V2 StartTimer"); }, () => { return true; });
+
+        cachetimer1 = TimeMgr.Self.StartTimer (0.5f, () => { Debug.Log ("execute action - Sample_V2 StartTimer"); });
         TimeMgr.Self.StartTimer (
             0.2f,
             () => {
-                Debug.Log ("execute action - Sample_V2 case2");
+                Debug.Log ("execute action - Sample_V2 StopTimer");
                 TimeMgr.Self.StopTimer (cachetimer1);
             },
             () => { return true; }
         );
 
-        TimeMgr.Self.StartTimer (2f, () => { Debug.Log ("execute action - Sample_V2 case3"); }, () => { return true; });
-
-        looptimer1 = TimeMgr.Self.StartTimer_Loop (1f, () => { Debug.Log ("execute action - loop event"); });
+        looptimer1 = TimeMgr.Self.StartTimer_Loop (1f, () => { Debug.Log ("execute action - StartTimer_Loop"); });
         // TimeMgr.Self.PauseObj(looptimer1);
+
+        TimeMgr.Self.StartTimer_Multi (1f, 3, () => { Debug.LogError ("execute action - Sample_V2 StartTimer_Multi"); });
     }
 
     void Update () {
