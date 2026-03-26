@@ -5,15 +5,15 @@ using UnityEngine;
 namespace LowoUN.Util {
     // MARK loywong 当timer生命周期与某个GameObject同步时（即当GameObject生命周期结束时，强制清理其绑定的所有定时器）
     public class TimeMgr : SingletonSimple<TimeMgr> {
-        // 有效游戏时间，排除了登录，切换场景。
-        private float gameTime_cur;
-
         // private float gameTime_start;
         // 真实自然时间 --- 适合用于性能测量和精确计时，比如代码耗时
         // private float gameStartRealTime;
 
         // 真实自然时间 --- 用于做定时恢复数值的情况
         // private float gameRealCurrentTime;
+
+        // 有效游戏时间，排除了登录，切换场景。
+        private float gameTime_cur;
         // 程序自身已持续运行了多长时间（不是真实时间，如果timeScale=0暂停，则不计算在内）
         public float GameRunningTime => gameTime_cur; //{ get { return gameTime_cur - gameTime_start; } }
 
@@ -26,7 +26,6 @@ namespace LowoUN.Util {
         private Stack<TimerObj> pool = new Stack<TimerObj> ();
 
         // 开启的
-        // TODO loywong 需要绑定一个唯一Key，以便判断是否为曾经使用过的Obj，如果时，则在再次使用前，可选手动强制停止上一个Obj
         private List<TimerObj> startList = new List<TimerObj> ();
         // 主动停止的
         private List<long> stopList = new List<long> ();
@@ -117,7 +116,7 @@ namespace LowoUN.Util {
         //     startList.Add(new TimerObj(id, gameRealCurrentTime + time, done, true));
         //     return id;
         // }
-        
+
         // 延迟x帧 执行一次（Time.timeScale 必须大于 0）
         public long StartTimer_Frames (uint frames, Action done, Func<bool> bindCondition = null) {
             return StartTimer_Base (frames, done, bindCondition, true);
@@ -125,15 +124,15 @@ namespace LowoUN.Util {
 
         // 每经过x时间，执行一次，无限不结束
         public long StartTimer_Loop (float time, Action perDone, Func<bool> bindCondition = null) {
-            return StartTimer_Base (time, perDone, bindCondition,false,false,0);
+            return StartTimer_Base (time, perDone, bindCondition, false, false, 0);
         }
         public long StartTimer_Loop_IgnoreTimeScale (float time, Action perDone, Func<bool> bindCondition = null) {
-            return StartTimer_Base (time, perDone, bindCondition,false,true,0);
+            return StartTimer_Base (time, perDone, bindCondition, false, true, 0);
         }
         // 每经过x时间，执行一次，总共执行多次
         public long StartTimer_Multi (float time, uint exeNums, Action done, Func<bool> bindCondition = null) {
-            if(exeNums<=1) {
-                Debug.LogError("TimeMgr -- StartTimer_Multi -- exeNums should be bigger than 0");
+            if (exeNums <= 1) {
+                Debug.LogError ("TimeMgr -- StartTimer_Multi -- exeNums should be bigger than 0");
                 return 0;
             }
             return StartTimer_Base (time, done, bindCondition, false, false, exeNums);
@@ -229,8 +228,6 @@ namespace LowoUN.Util {
 
         public void DoneToRecycle (TimerObj tobj) {
             Debug.Log ($"DoneToRecycle id:{tobj.id}");
-            // timerMap.Remove (tobj.id);
-            // pool.Push (tobj);
             stopList.Add (tobj.id);
         }
 

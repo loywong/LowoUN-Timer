@@ -17,8 +17,8 @@ namespace LowoUN.Util {
         bool isFrameType;
         bool isIgnoreTimeScale;
         // bool isLoop => exeTimes==0;
-        uint exeTimes = 1;// 0表示不限次数 1 表示1次 n表示多次
-        uint curExeTimes;
+        uint maxTimes = 1; // 0表示不限次数 1 表示1次 n表示多次
+        uint curTimes;
 
         float curTime;
         TimerObjState curState;
@@ -27,25 +27,25 @@ namespace LowoUN.Util {
         // public TimerObj (long id, float endTick, Action done, bool isRealTimer) {
         public TimerObj (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes) {
             this.id = id;
-            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale,exeTimes);
+            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale, exeTimes);
         }
         public void ReInit (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes) {
             this.id = id;
-            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale,exeTimes);
+            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale, exeTimes);
         }
-        void Init (float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes) {
+        void Init (float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint maxTimes) {
             this.exeTime = exeTime;
             this.done = done;
             // this.isRealTimer = isRealTimer;
             this.bindCondition = bindCondition;
             this.isFrameType = isFrameType;
             this.isIgnoreTimeScale = isIgnoreTimeScale;
-            this.exeTimes = exeTimes;
+            this.maxTimes = maxTimes;
         }
 
         public void Start () {
             curTime = 0;
-            curExeTimes = 0;
+            curTimes = 0;
             SetState_NotStop (TimerObjState.Running);
         }
 
@@ -66,13 +66,13 @@ namespace LowoUN.Util {
         public void SetState_Pause () { SetState_NotStop (TimerObjState.Pause); }
         public void SetState_Resume () { SetState_NotStop (TimerObjState.Running); }
 
-        void CallEventOnce() {
+        void CallEventOnce () {
             try {
                 if (this == null) {
                     Debug.LogError ("TimerObj is null");
                     return;
                 }
-                if(done!=null) {
+                if (done != null) {
                     if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
                         done.Invoke ();
                     }
@@ -89,7 +89,7 @@ namespace LowoUN.Util {
                     return;
                 }
 
-                if(done!=null) {
+                if (done != null) {
                     if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
                         done.Invoke ();
                     }
@@ -103,7 +103,7 @@ namespace LowoUN.Util {
 
         void Reset () {
             exeTime = 0;
-            exeTimes = 1;
+            maxTimes = 1;
             done = null;
             curState = TimerObjState.Done;
         }
@@ -123,18 +123,16 @@ namespace LowoUN.Util {
             }
 
             if (curTime >= exeTime) {
-                curExeTimes += 1;
-                // SetStateDone ();
+                curTimes += 1;
                 curTime = 0;
-                if(exeTimes==0) 
-                    CallEventOnce();
+                if (maxTimes == 0)
+                    CallEventOnce ();
                 else {
-                    if(curExeTimes>= exeTimes){
-                        curExeTimes = 0;
-                        SetState_Stop();
-                    }
-                    else {
-                        CallEventOnce();
+                    if (curTimes >= maxTimes) {
+                        curTimes = 0;
+                        SetState_Stop ();
+                    } else {
+                        CallEventOnce ();
                     }
                 }
             }
