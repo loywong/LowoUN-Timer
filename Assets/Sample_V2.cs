@@ -37,10 +37,10 @@ public class Sample_V2 : MonoBehaviour {
     void OnGUI () {
         GUI.skin.button.fontSize = 36;
         GUI.backgroundColor = Color.green;
-        if(looptimer1>0) {
-            if (GUI.Button (new Rect (10, 10, 450, 60), "Pause loop timer")) {TimeMgr.Self.PauseObj(looptimer1);}
-            if (GUI.Button (new Rect (10, 80, 450, 60), "Resume loop timer")) {TimeMgr.Self.ResumeObj(looptimer1);}
-            if (GUI.Button (new Rect (10, 150, 450, 60), "Resume loop timer")) {TimeMgr.Self.StopTimer(looptimer1);}
+        if (looptimer1 > 0) {
+            if (GUI.Button (new Rect (10, 10, 450, 60), "Pause loop timer")) { TimeMgr.Self.PauseObj (looptimer1); }
+            if (GUI.Button (new Rect (10, 80, 450, 60), "Resume loop timer")) { TimeMgr.Self.ResumeObj (looptimer1); }
+            if (GUI.Button (new Rect (10, 150, 450, 60), "Resume loop timer")) { TimeMgr.Self.StopTimer (looptimer1); }
         }
     }
 }

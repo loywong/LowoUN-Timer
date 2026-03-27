@@ -25,9 +25,9 @@ namespace LowoUN.Util {
         public TimerObjState CurState => curState;
 
         // public TimerObj (long id, float endTick, Action done, bool isRealTimer) {
-        public TimerObj (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes) {
+        public TimerObj (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint maxTimes) {
             this.id = id;
-            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale, exeTimes);
+            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale, maxTimes);
         }
         public void ReInit (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes) {
             this.id = id;
