@@ -123,19 +123,19 @@ namespace LowoUN.Util {
         }
 
         // 每经过x时间，执行一次，无限不结束
-        public long StartTimer_Loop (float time, Action perDone, Func<bool> bindCondition = null) {
-            return StartTimer_Base (time, perDone, bindCondition, false, false, 0);
+        public long StartTimer_Loop (float time, Action callEvent, Func<bool> bindCondition = null) {
+            return StartTimer_Base (time, callEvent, bindCondition, false, false, 0);
         }
-        public long StartTimer_Loop_IgnoreTimeScale (float time, Action perDone, Func<bool> bindCondition = null) {
-            return StartTimer_Base (time, perDone, bindCondition, false, true, 0);
+        public long StartTimer_Loop_IgnoreTimeScale (float time, Action callEvent, Func<bool> bindCondition = null) {
+            return StartTimer_Base (time, callEvent, bindCondition, false, true, 0);
         }
         // 每经过x时间，执行一次，总共执行多次
-        public long StartTimer_Multi (float time, uint exeNums, Action done, Func<bool> bindCondition = null) {
-            if (exeNums <= 1) {
+        public long StartTimer_Multi (float time, uint maxTimes, Action callEvent, Func<bool> bindCondition = null) {
+            if (maxTimes <= 1) {
                 Debug.LogError ("TimeMgr -- StartTimer_Multi -- exeNums should be bigger than 0");
                 return 0;
             }
-            return StartTimer_Base (time, done, bindCondition, false, false, exeNums);
+            return StartTimer_Base (time, callEvent, bindCondition, false, false, maxTimes);
         }
 
         // 延迟x时间，执行一次，忽略timeScale
@@ -147,18 +147,18 @@ namespace LowoUN.Util {
         public long StartTimer (float time, Action done, Func<bool> bindCondition = null) {
             return StartTimer_Base (time, done, bindCondition);
         }
-        long StartTimer_Base (float time, Action done, Func<bool> bindCondition = null, bool isFrameType = false, bool isIgnoreTimeScale = false, uint exeTimes = 1) {
+        long StartTimer_Base (float time, Action done, Func<bool> bindCondition = null, bool isFrameType = false, bool isIgnoreTimeScale = false, uint maxTimes = 1) {
             TimerObj tobj;
             if (pool.Count > 0) {
                 // Debug.LogError($"StartTimer -- pool.Count:{pool.Count}");
                 tobj = pool.Pop ();
 
                 timerId += 1;
-                tobj.ReInit (timerId, time, done, bindCondition, isFrameType, isIgnoreTimeScale, exeTimes);
+                tobj.ReInit (timerId, time, done, bindCondition, isFrameType, isIgnoreTimeScale, maxTimes);
             } else {
                 timerId += 1;
                 // Debug.LogError($"StartTimer -- Create new TimerObj id:{timerId}");
-                tobj = new TimerObj (timerId, time, done, bindCondition, isFrameType, isIgnoreTimeScale, exeTimes);
+                tobj = new TimerObj (timerId, time, done, bindCondition, isFrameType, isIgnoreTimeScale, maxTimes);
             }
 
             startList.Add (tobj); //gameTime_cur + time,
