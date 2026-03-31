@@ -19,21 +19,22 @@ namespace LowoUN.Util {
         // bool isLoop => exeTimes==0;
         uint maxTimes = 1; // 0表示不限次数 1 表示1次 n表示多次
         uint curTimes;
+        bool isInstanCall; // true 表示 立即调用一次event false(默认) 表示 经过delay的时间之后作为第一次调用; 适用于 Multi 和 Loop模式
 
         float curTime;
         TimerObjState curState;
         public TimerObjState CurState => curState;
 
         // public TimerObj (long id, float endTick, Action done, bool isRealTimer) {
-        public TimerObj (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint maxTimes) {
+        public TimerObj (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint maxTimes,bool isInstanCall) {
             this.id = id;
-            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale, maxTimes);
+            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale, maxTimes,isInstanCall);
         }
-        public void ReInit (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes) {
+        public void ReInit (long id, float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint exeTimes,bool isInstanCall) {
             this.id = id;
-            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale, exeTimes);
+            Init (exeTime, done, bindCondition, isFrameType, isIgnoreTimeScale, exeTimes,isInstanCall);
         }
-        void Init (float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint maxTimes) {
+        void Init (float exeTime, Action done, Func<bool> bindCondition, bool isFrameType, bool isIgnoreTimeScale, uint maxTimes, bool isInstanCall) {
             this.exeTime = exeTime;
             this.done = done;
             // this.isRealTimer = isRealTimer;
@@ -41,6 +42,13 @@ namespace LowoUN.Util {
             this.isFrameType = isFrameType;
             this.isIgnoreTimeScale = isIgnoreTimeScale;
             this.maxTimes = maxTimes;
+            this.isInstanCall = isInstanCall;
+
+            // 对于 Loop/Multi模式 如果 isDelayOrInstan 第一次执行是延后，或者是立即
+            if(maxTimes == 0 || maxTimes > 1) {
+                if(isInstanCall)
+                    CallEventInstan();
+            }
         }
 
         public void Start () {
@@ -123,11 +131,15 @@ namespace LowoUN.Util {
             }
 
             if (curTime >= exeTime) {
-                curTimes += 1;
                 curTime = 0;
                 if (maxTimes == 0)
                     CallEventOnce ();
-                else {
+                else if (maxTimes == 1) {
+                    curTimes = 0;
+                    SetState_Stop ();
+                }
+                else if (maxTimes > 1) {
+                    curTimes += 1;
                     if (curTimes >= maxTimes) {
                         curTimes = 0;
                         SetState_Stop ();
@@ -136,6 +148,14 @@ namespace LowoUN.Util {
                     }
                 }
             }
+        }
+
+        // 如果 isDelayOrInstan 第一次执行 延后/立即 是 立即
+        void CallEventInstan () {
+            // Multi模式
+            if(maxTimes > 1)
+                curTimes += 1;
+            CallEventOnce ();
         }
     }
 }
