@@ -130,7 +130,7 @@ namespace LowoUN.Util {
             return StartTimer_Base (time, callEvent, bindCondition, false, true, 0,isInstanCall);
         }
         // 每经过x时间，执行一次，总共执行多次
-        public long StartTimer_Multi (float time, uint maxTimes, Action callEvent, bool isInstanCall = false, Func<bool> bindCondition = null) {
+        public long StartTimer_Multi (float time, uint maxTimes, Action callEvent, bool isInstanCall = true, Func<bool> bindCondition = null) {
             if (maxTimes <= 1) {
                 Debug.LogError ("TimeMgr -- StartTimer_Multi -- exeNums should be bigger than 0");
                 return 0;
