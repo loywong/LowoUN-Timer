@@ -97,9 +97,11 @@ namespace LowoUN.Util {
                     return;
                 }
 
-                if (done != null) {
-                    if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
-                        done.Invoke ();
+                if (!isInstanCall) {
+                    if (done != null) {
+                        if (bindCondition == null || (bindCondition != null && bindCondition.Invoke () == true)) {
+                            done.Invoke ();
+                        }
                     }
                 }
                 Reset ();
